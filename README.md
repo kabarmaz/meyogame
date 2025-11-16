@@ -1,3 +1,39 @@
+# MeyoGame — Deploying to GitHub Pages
+
+This repository is a small static site with two games:
+- `index.html` — Numbers memory game
+- `audiovisual.html` — Audio Visual Memory (B1)
+
+Quick deployment instructions to publish this repository on GitHub Pages (no build step required).
+
+1) Create a new GitHub repository (if you haven't) and push this project to it. From PowerShell run from the repository root:
+
+```powershell
+git init
+git add .
+git commit -m "Initial commit — add games and audiovisual page"
+git branch -M main
+git remote add origin https://github.com/<your-username>/<your-repo-name>.git
+git push -u origin main
+```
+
+2) Enable GitHub Pages
+- On GitHub, open the repository Settings → Pages
+- Under "Source" choose the `main` branch and the `/ (root)` folder
+- Save. GitHub will publish the site to `https://<your-username>.github.io/<your-repo-name>/`.
+
+3) Files to check after publishing
+- `index.html` will be available at the root URL.
+- `audiovisual.html` will be available at `.../audiovisual.html`.
+
+Optional: automatic deploy via `gh-pages` (npm)
+- If you'd rather deploy using the `gh-pages` package, create a `package.json` and add a `deploy` script; let me know and I'll add it.
+
+Notes
+- The repository includes a `.nojekyll` file to ensure GitHub Pages serves files as-is.
+- If you use a custom domain, add a `CNAME` file in the repo root with your domain.
+
+If you want, I can push these files and create a small `package.json` + `gh-pages` workflow for automatic deployments.
 # Memory Max — small web memory game
 
 This is a small HTML/CSS/JS game that shows short sequences of numbers between 1 and 15 (each number displayed for ~1 second). After each sequence the player should tap the largest number shown. Rounds increase in length (1, 2, 3, ...). The UI is mobile-focused and optimized for an iPhone 13 mini viewport.

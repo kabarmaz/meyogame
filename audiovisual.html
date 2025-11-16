@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Audio Visual Memory (B1)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>Audio Visual Memory (B1)</h1>
+        <p class="subtitle">Remember cities on open corridors</p>
+      </header>
+
+      <div class="status-row">
+        <div>Round: <span id="avRound">0</span></div>
+        <div>Score: <span id="avScore">0</span></div>
+        <div id="avTimer" style="color:var(--muted)"></div>
+      </div>
+      <div style="width:100%;max-width:360px;margin:8px auto 0;">
+        <div id="timerBar" class="timer-bar" aria-hidden="true">
+          <div id="timerFill" class="timer-fill"></div>
+        </div>
+      </div>
+
+      <main>
+        <div class="controls" style="justify-content:space-between;align-items:center;">
+          <a href="index.html" class="btn">Back</a>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <label style="color:var(--muted);font-size:13px;">Speed:</label>
+            <select id="speedSelect" class="btn" style="padding:8px;border-radius:8px;">
+              <option value="slow">Slow</option>
+              <option value="normal" selected>Normal</option>
+              <option value="fast">Fast</option>
+            </select>
+            <button id="newSetBtn" class="btn primary">New Set</button>
+            <button id="playAudioBtn" class="btn" disabled>Play Instructions</button>
+            <button id="submitNowBtn" class="btn" disabled>Submit Now</button>
+          </div>
+        </div>
+
+        <section id="screenClosed" class="image-section">
+          <div id="closedCorridors" style="text-align:center;">
+            <!-- visual for closed corridors goes here -->
+            <p class="prompt">Closed corridors: <span id="closedList">—</span></p>
+            <div id="corridorGrid" style="display:grid;grid-template-columns:repeat(9,1fr);gap:6px;max-width:300px;margin:8px auto;">
+              <!-- corridor indicators 1..9 -->
+            </div>
+          </div>
+        </section>
+
+        <section id="screenAudio" class="image-section">
+          <p class="prompt">Audio instructions will be read aloud. The app uses SpeechSynthesis where available.</p>
+          <div id="instructionLog" style="max-height:120px;overflow:auto;padding:6px;background:rgba(255,255,255,0.01);border-radius:8px;"></div>
+        </section>
+
+        <section id="screenResponse" class="image-section">
+          <p class="prompt">Select the cities on the open corridors (65 total cities are listed alphabetically).</p>
+          <div id="responseGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:520px;overflow:auto;padding:6px;align-items:start;">
+            <!-- cities checkboxes will be populated here into a 13 rows × 5 columns grid -->
+            <div id="citiesPlaceholder" style="color:var(--muted);grid-column:1/-1;text-align:center;">Waiting for city list...</div>
+          </div>
+        </section>
+
+        <div class="feedback" id="avFeedback"></div>
+      </main>
+
+      <footer>
+        <small>Audio Visual Memory scaffold — add your city list to activate</small>
+      </footer>
+    </div>
+
+    <script src="audiovisual.js" defer></script>
+  </body>
+</html>
