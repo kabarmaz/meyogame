@@ -57,7 +57,7 @@
 
         <section id="screenResponse" class="image-section">
           <p class="prompt">Select the cities on the open corridors (65 total cities are listed alphabetically).</p>
-          <div id="responseGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:520px;overflow:auto;padding:6px;align-items:start;">
+          <div id="responseGrid" style="display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(13,auto);grid-auto-flow:column;gap:8px;max-height:520px;overflow:auto;padding:6px;align-items:start;">
             <!-- cities checkboxes will be populated here into a 13 rows × 5 columns grid -->
             <div id="citiesPlaceholder" style="color:var(--muted);grid-column:1/-1;text-align:center;">Waiting for city list...</div>
           </div>

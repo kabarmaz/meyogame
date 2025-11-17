@@ -67,13 +67,19 @@ function pickClosedCorridors(){
 }
 
 function buildInstructionsForSet(count){
-  // Build `count` random instructions assigning cities to corridors 1..9
-  // For now, use placeholder city names if cityList is not provided
+  // Build `count` random instructions assigning random cities to random corridors
   instructions = [];
   const availableCorridors = [1,2,3,4,5,6,7,8,9].filter(c=>!closedCorridors.includes(c));
+  
+  // shuffle cityList to pick random cities each time
+  const shuffledCities = cityList.slice().sort(() => Math.random() - 0.5);
+  
+  // shuffle available corridors to assign them randomly
+  const shuffledCorridors = availableCorridors.slice().sort(() => Math.random() - 0.5);
+  
   for(let i=0;i<count;i++){
-    const corridor = availableCorridors[i % availableCorridors.length];
-    const city = cityList[i] || (`City${i+1}`);
+    const corridor = shuffledCorridors[i % shuffledCorridors.length];
+    const city = shuffledCities[i] || (`City${i+1}`);
     instructions.push({city, corridor});
   }
 }
@@ -115,7 +121,9 @@ function populateResponseGrid(cities){
   // Ensure grid layout: 5 columns, 13 rows
   responseGrid.innerHTML = '';
   responseGrid.style.display = 'grid';
-  responseGrid.style.gridTemplateColumns = 'repeat(5,1fr)';
+  responseGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+  responseGrid.style.gridTemplateRows = 'repeat(10, auto)';
+  responseGrid.style.gridAutoFlow = 'column';
   responseGrid.style.gap = '8px';
 
   cities.forEach((city, idx) =>{
