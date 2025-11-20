@@ -48,9 +48,11 @@ function computePivot(seq){
 }
 
 function computeCorrectAnswer(seq){
-  const pivot = computePivot(seq);
-  // include numbers >= pivot in original order, concatenate as strings
-  const parts = seq.filter(n => n >= pivot).map(String);
+  // Always submit the first number plus all numbers that come after it
+  // For sequence [5, 9], answer is "59"
+  // For sequence [3, 2, 7], answer is "327"
+  if(seq.length === 0) return '';
+  const parts = seq.map(String);
   return parts.join('');
 }
 
