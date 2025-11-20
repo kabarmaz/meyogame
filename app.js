@@ -32,10 +32,13 @@ function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 
 function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
-function generateSequence(len){
-  const seq = [];
-  for(let i=0;i<len;i++) seq.push(randInt(0, MAX_NUM));
-  return seq;
+function generateSequence(len) {
+    const numbers = Array.from({ length: MAX_NUM + 1 }, (_, i) => i);
+    for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+    return numbers.slice(0, len);
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
