@@ -32,23 +32,20 @@ function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 
 function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
-function generateSequence(len, MAX_NUM) {
-    if (len > MAX_NUM + 1) {
-        throw new Error("Length exceeds number of unique numbers available");
-    }
+function generateSequence(len){
+  const seq = [];
+  const used = new Set();
 
-    const seq = [];
-    const used = new Set();
+  for(let i = 0; i < len; i++) {
+    let num;
+    do {
+      num = randInt(0, MAX_NUM);
+    } while (used.has(num));
+    seq.push(num);
+    used.add(num);
+  }
 
-    while (seq.length < len) {
-        const num = Math.floor(Math.random() * (MAX_NUM + 1));
-        if (!used.has(num)) {
-            seq.push(num);
-            used.add(num);
-        }
-    }
-
-    return seq; // just return seq, no arrays or slices
+  return seq;
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
