@@ -34,18 +34,17 @@ function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
 function generateSequence(len, MAX_NUM) {
     if (len > MAX_NUM + 1) {
-        throw new Error("Length exceeds the number of unique numbers available");
+        throw new Error("Length exceeds number of unique numbers available");
     }
 
-    const numbers = Array.from({ length: MAX_NUM + 1 }, (_, i) => i);
+    const seq = new Set();
 
-    // Fisher–Yates shuffle
-    for (let i = numbers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    while (seq.size < len) {
+        const num = Math.floor(Math.random() * (MAX_NUM + 1));
+        seq.add(num); // Set automatically ignores duplicates
     }
 
-    return numbers.slice(0, len);
+    return Array.from(seq);
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
