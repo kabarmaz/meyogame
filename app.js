@@ -37,14 +37,18 @@ function generateSequence(len, MAX_NUM) {
         throw new Error("Length exceeds number of unique numbers available");
     }
 
-    const seq = new Set();
+    const seq = [];
+    const used = new Set();
 
-    while (seq.size < len) {
+    while (seq.length < len) {
         const num = Math.floor(Math.random() * (MAX_NUM + 1));
-        seq.add(num); // Set automatically ignores duplicates
+        if (!used.has(num)) {
+            seq.push(num);
+            used.add(num);
+        }
     }
 
-    return Array.from(seq);
+    return seq; // just return seq, no arrays or slices
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
