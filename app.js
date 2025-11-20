@@ -48,13 +48,17 @@ function computePivot(seq){
 }
 
 function computeCorrectAnswer(seq){
-  // Submit the first number and all numbers >= the first number
-  // For sequence [5, 9], answer is "59"
-  // For sequence [5, 3, 7], answer is "57" (skip 3 because it's < 5)
+  // Submit the first number, then any number greater than the number before it
+  // For sequence [5, 3, 7, 6, 9], answer is "579"
+  // (5 starts, 7 > 3 so include it, 6 is not > 7 so skip it, 9 > 6 so include it)
   if(seq.length === 0) return '';
-  const firstNum = seq[0];
-  const parts = seq.filter(n => n >= firstNum).map(String);
-  return parts.join('');
+  const parts = [seq[0]]; // always include first number
+  for(let i = 1; i < seq.length; i++){
+    if(seq[i] > seq[i-1]){
+      parts.push(seq[i]);
+    }
+  }
+  return parts.map(String).join('');
 }
 
 async function showSequence(seq){
