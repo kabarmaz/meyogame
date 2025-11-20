@@ -1,5 +1,5 @@
 // Memory Max — Option 1 pivot behavior
-const MAX_NUM = 15;
+const MAX_NUM = 9;
 const displayEl = document.getElementById('display');
 const roundEl = document.getElementById('round');
 const scoreEl = document.getElementById('score');
@@ -34,7 +34,7 @@ function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
 function generateSequence(len){
   const seq = [];
-  for(let i=0;i<len;i++) seq.push(randInt(1, MAX_NUM));
+  for(let i=0;i<len;i++) seq.push(randInt(0, MAX_NUM));
   return seq;
 }
 
@@ -61,9 +61,9 @@ async function showSequence(seq){
     await new Promise(r=>requestAnimationFrame(r));
     displayEl.style.transition = 'opacity 0.12s';
     displayEl.style.opacity = '1';
-    await new Promise(r=>setTimeout(r, 900));
+    await new Promise(r=>setTimeout(r, 1000));
     displayEl.style.opacity = '0';
-    await new Promise(r=>setTimeout(r, 120));
+    await new Promise(r=>setTimeout(r, 100));
   }
   displayEl.style.transition = '';
   displayEl.textContent = '';
@@ -71,7 +71,7 @@ async function showSequence(seq){
 
 function createNumberButtons(){
   numberGrid.innerHTML = '';
-  for(let i=1;i<=MAX_NUM;i++){
+  for(let i=0;i<=MAX_NUM;i++){
     const b = document.createElement('button');
     b.textContent = i;
     b.dataset.val = i;
