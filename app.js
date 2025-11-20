@@ -48,11 +48,12 @@ function computePivot(seq){
 }
 
 function computeCorrectAnswer(seq){
-  // Always submit the first number plus all numbers that come after it
+  // Submit the first number and all numbers >= the first number
   // For sequence [5, 9], answer is "59"
-  // For sequence [3, 2, 7], answer is "327"
+  // For sequence [5, 3, 7], answer is "57" (skip 3 because it's < 5)
   if(seq.length === 0) return '';
-  const parts = seq.map(String);
+  const firstNum = seq[0];
+  const parts = seq.filter(n => n >= firstNum).map(String);
   return parts.join('');
 }
 
