@@ -32,12 +32,19 @@ function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 
 function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
-function generateSequence(len) {
+function generateSequence(len, MAX_NUM) {
+    if (len > MAX_NUM + 1) {
+        throw new Error("Length exceeds the number of unique numbers available");
+    }
+
     const numbers = Array.from({ length: MAX_NUM + 1 }, (_, i) => i);
+
+    // Fisher–Yates shuffle
     for (let i = numbers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
+
     return numbers.slice(0, len);
 }
 
