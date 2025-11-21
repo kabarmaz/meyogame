@@ -6,6 +6,7 @@ const scoreEl = document.getElementById('score');
 const startBtn = document.getElementById('startBtn');
 const nextBtn = document.getElementById('nextBtn');
 const restartBtn = document.getElementById('restartBtn');
+const retryBtn = document.getElementById('retryBtn');
 const answerArea = document.getElementById('answerArea');
 const numberGrid = document.getElementById('numberGrid');
 const feedbackEl = document.getElementById('feedback');
@@ -125,11 +126,13 @@ function enableAnswerArea(enabled){
     awaitingAnswer = true;
     feedbackEl.textContent = '';
     setResponse('');
+    if(retryBtn) retryBtn.disabled = false;
   } else {
     answerArea.classList.add('hidden');
     Array.from(numberGrid.children).forEach(b=>b.disabled=true);
     awaitingAnswer = false;
     setResponse('');
+    if(retryBtn) retryBtn.disabled = true;
   }
 }
 
@@ -158,6 +161,17 @@ async function startRound(){
   currentSequence = generateSequence(seqLen);
   enableAnswerArea(false);
   feedbackEl.textContent = 'Watch closely...';
+  await showSequence(currentSequence);
+  feedbackEl.textContent = '';
+  enableAnswerArea(true);
+}
+
+// Replay the current sequence without changing round or score
+async function retryRound(){
+  if(!currentSequence || currentSequence.length === 0) return;
+  // disable answer area while replaying
+  enableAnswerArea(false);
+  feedbackEl.textContent = 'Replaying...';
   await showSequence(currentSequence);
   feedbackEl.textContent = '';
   enableAnswerArea(true);
@@ -243,3 +257,4 @@ nextBtn.addEventListener('click', ()=>{ startRound(); });
 restartBtn.addEventListener('click', ()=>{ restartGame(); });
 submitBtn.addEventListener('click', ()=>{ submitAnswer(); });
 clearBtn.addEventListener('click', ()=>{ clearResponse(); });
+if(retryBtn) retryBtn.addEventListener('click', ()=>{ retryRound(); });
