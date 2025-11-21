@@ -34,17 +34,25 @@ function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
 function generateSequence(len){
   const seq = [];
-  const used = new Set();
-
-  for(let i = 0; i < len; i++) {
-    let num;
-    do {
-      num = randInt(0, MAX_NUM);
-    } while (used.has(num));
-    seq.push(num);
-    used.add(num);
+  const pool = [];
+  for(let n = 0; n <= MAX_NUM; n++) pool.push(n);
+  // shuffle pool (Fisher-Yates)
+  for(let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
   }
 
+  if(len <= pool.length){
+    // we can return a fully non-repeating sequence
+    return pool.slice(0, len);
+  }
+
+  // If requested length exceeds unique values available, use all unique values first
+  seq.push(...pool);
+  // then fill the remaining slots allowing repeats
+  while(seq.length < len){
+    seq.push(randInt(0, MAX_NUM));
+  }
   return seq;
 }
 
