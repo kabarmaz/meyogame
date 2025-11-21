@@ -136,7 +136,18 @@ async function startRound(){
   wrongImageArea.classList.add('hidden');
   round += 1;
   setStatus();
-  currentSequence = generateSequence(round);
+  // Check if game has reached 20 rounds
+  if(round > 20){
+    feedbackEl.textContent = 'Game complete! 20 rounds finished.';
+    showCorrectFeedback();
+    startBtn.disabled = false;
+    nextBtn.disabled = true;
+    restartBtn.disabled = false;
+    return;
+  }
+  // Generate sequence: 3 for first round, then increase by 1 each round
+  const seqLen = round === 1 ? 3 : round + 2;
+  currentSequence = generateSequence(seqLen);
   enableAnswerArea(false);
   feedbackEl.textContent = 'Watch closely...';
   await showSequence(currentSequence);
