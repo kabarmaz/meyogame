@@ -67,20 +67,17 @@ function pickClosedCorridors(){
 }
 
 function buildInstructionsForSet(count){
-  // Build `count` random instructions assigning random cities to random corridors
+  // Build `count` random instructions; include both open and closed corridors.
+  // Mark instructions on closed corridors so they are ignored during scoring.
   instructions = [];
-  const availableCorridors = [1,2,3,4,5,6,7,8,9].filter(c=>!closedCorridors.includes(c));
-  
-  // shuffle cityList to pick random cities each time
+  const allCorridors = [1,2,3,4,5,6,7,8,9];
   const shuffledCities = cityList.slice().sort(() => Math.random() - 0.5);
-  
-  // shuffle available corridors to assign them randomly
-  const shuffledCorridors = availableCorridors.slice().sort(() => Math.random() - 0.5);
-  
+  const shuffledCorridors = allCorridors.slice().sort(() => Math.random() - 0.5);
   for(let i=0;i<count;i++){
     const corridor = shuffledCorridors[i % shuffledCorridors.length];
     const city = shuffledCities[i] || (`City${i+1}`);
-    instructions.push({city, corridor});
+    const isClosed = closedCorridors.includes(corridor);
+    instructions.push({city, corridor, closed: isClosed});
   }
 }
 
@@ -103,7 +100,8 @@ function playInstructions(){
       return;
     }
     const inst = instructions[i];
-    const text = `To ${inst.city} on Corridor ${inst.corridor}`;
+    const text = `To ${inst.city} on Corridor ${inst.corridor}${inst.closed ? ' (closed)' : ''}`;
+    // Log with visual cue for closed corridors
     logInstruction(text);
     if(window.speechSynthesis){
       const u = new SpeechSynthesisUtterance(text);
@@ -269,30 +267,28 @@ function startResponseTimer(){
 // (removed duplicate wrapper)
 
 function evaluateResponse(){
-  // gather selected cities
-  const checked = Array.from(responseGrid.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.dataset.city);
-  const selectedSet = new Set(checked.map(c=>c.trim()));
-  const correctCities = instructions.map(i=>i.city.trim());
-  const correctSet = new Set(correctCities);
-
-  // compare sets: same size and every correct is selected
-  let isCorrect = selectedSet.size === correctSet.size && [...correctSet].every(c => selectedSet.has(c));
+  // gather selected cities (trimmed)
+  const checked = Array.from(responseGrid.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.dataset.city.trim());
+  const selectedSet = new Set(checked);
+  // Only cities on OPEN corridors are required
+  const openInstructionCities = instructions.filter(i=>!i.closed).map(i=>i.city.trim());
+  const requiredSet = new Set(openInstructionCities);
+  // Determine correctness: all required selected and no extras (extras allowed? -> treat extra selections as wrong)
+  const allRequiredSelected = [...requiredSet].every(c => selectedSet.has(c));
+  const noExtraOpenSelections = [...selectedSet].every(c => requiredSet.has(c));
+  const isCorrect = allRequiredSelected && noExtraOpenSelections;
 
   if(isCorrect){
     avScore += 1;
     feedback.textContent = 'Correct!';
     setAvStatus();
-    // highlight correct selections briefly
-    highlightCorrect(correctCities);
-    // auto-advance after short delay
+    highlightCorrect(openInstructionCities);
     setTimeout(()=>{ prepareNewSet(); }, 1400);
   } else {
-    feedback.textContent = `Wrong — correct: ${correctCities.join(', ')}.`;
-    highlightCorrect(correctCities, true);
-    // leave it to the user to press New Set; enable play/new set remains
+    feedback.textContent = `Wrong — correct: ${openInstructionCities.join(', ')}.`;
+    highlightCorrect(openInstructionCities, true);
   }
   if(avTimerEl) avTimerEl.textContent = '';
-  // cleanup timers
   if(responseTimerId){ clearTimeout(responseTimerId); responseTimerId = null; }
   if(responseCountdownInterval){ clearInterval(responseCountdownInterval); responseCountdownInterval = null; }
   if(responseFillInterval){ clearInterval(responseFillInterval); responseFillInterval = null; }

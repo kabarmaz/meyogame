@@ -34,27 +34,17 @@ function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
 function generateSequence(len){
-  const seq = [];
+  // Always return a non-repeating sequence. Cap length to available unique digits.
+  const maxUnique = MAX_NUM + 1;
+  const targetLen = Math.min(len, maxUnique);
   const pool = [];
   for(let n = 0; n <= MAX_NUM; n++) pool.push(n);
-  // shuffle pool (Fisher-Yates)
+  // Fisher-Yates shuffle
   for(let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-
-  if(len <= pool.length){
-    // we can return a fully non-repeating sequence
-    return pool.slice(0, len);
-  }
-
-  // If requested length exceeds unique values available, use all unique values first
-  seq.push(...pool);
-  // then fill the remaining slots allowing repeats
-  while(seq.length < len){
-    seq.push(randInt(0, MAX_NUM));
-  }
-  return seq;
+  return pool.slice(0, targetLen);
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
@@ -156,8 +146,9 @@ async function startRound(){
     restartBtn.disabled = false;
     return;
   }
-  // Generate sequence: 3 for first round, then increase by 1 each round
-  const seqLen = round === 1 ? 3 : round + 2;
+  // Generate sequence: 3 digits first round, then grow by 1 each round, capped at 10 unique digits (0..9)
+  const seqLenRaw = (round === 1 ? 3 : round + 2);
+  const seqLen = Math.min(seqLenRaw, MAX_NUM + 1); // cap to avoid repeats
   currentSequence = generateSequence(seqLen);
   enableAnswerArea(false);
   feedbackEl.textContent = 'Watch closely...';
