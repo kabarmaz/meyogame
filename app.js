@@ -7,6 +7,7 @@ const startBtn = document.getElementById('startBtn');
 const nextBtn = document.getElementById('nextBtn');
 const restartBtn = document.getElementById('restartBtn');
 const retryBtn = document.getElementById('retryBtn');
+const levelSelect = document.getElementById('levelSelect');
 const answerArea = document.getElementById('answerArea');
 const numberGrid = document.getElementById('numberGrid');
 const feedbackEl = document.getElementById('feedback');
@@ -24,6 +25,7 @@ let score = 0;
 let currentSequence = [];
 let awaitingAnswer = false;
 let currentResponse = '';
+let startRoundOverride = null; // optional starting round from level selector
 
 // Confetti emojis for celebration
 const confettiEmojis = ['🌹', '❤️', '💕', '🌹', '❤️', '💕'];
@@ -135,7 +137,18 @@ async function startRound(){
   answerImageArea.classList.remove('hidden');
   correctImageArea.classList.add('hidden');
   wrongImageArea.classList.add('hidden');
-  round += 1;
+  // If first start and level selected, set override
+  if(round === 0 && levelSelect){
+    const lv = levelSelect.value;
+    if(lv === 'easy') startRoundOverride = 1;
+    else if(lv === 'medium') startRoundOverride = 5;
+    else if(lv === 'hard') startRoundOverride = 10;
+  }
+  if(startRoundOverride && round === 0){
+    round = startRoundOverride;
+  } else {
+    round += 1;
+  }
   setStatus();
   // Check if game has reached 20 rounds
   if(round > 20){
@@ -147,6 +160,7 @@ async function startRound(){
     return;
   }
   // Generate sequence: 3 digits first round, then grow by 1 each round, capped at 10 unique digits (0..9)
+  // Level-based start still uses the same growth rule: first played round uses 3 if easy; else derived by round index
   const seqLenRaw = (round === 1 ? 3 : round + 2);
   const seqLen = Math.min(seqLenRaw, MAX_NUM + 1); // cap to avoid repeats
   currentSequence = generateSequence(seqLen);
@@ -249,3 +263,15 @@ restartBtn.addEventListener('click', ()=>{ restartGame(); });
 submitBtn.addEventListener('click', ()=>{ submitAnswer(); });
 clearBtn.addEventListener('click', ()=>{ clearResponse(); });
 if(retryBtn) retryBtn.addEventListener('click', ()=>{ retryRound(); });
+if(levelSelect){
+  levelSelect.addEventListener('change', ()=>{
+    // Changing level only affects the next Start; does not change current round mid-game
+    startRoundOverride = null;
+    if(round === 0){
+      const lv = levelSelect.value;
+      if(lv === 'easy') startRoundOverride = 1;
+      else if(lv === 'medium') startRoundOverride = 5;
+      else if(lv === 'hard') startRoundOverride = 10;
+    }
+  });
+}
