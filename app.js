@@ -25,7 +25,8 @@ let score = 0;
 let currentSequence = [];
 let awaitingAnswer = false;
 let currentResponse = '';
-let startRoundOverride = null; // optional starting round from level selector
+// Fixed sequence length per difficulty (easy=10, medium=15, hard=20)
+let sequenceLength = 10;
 
 // Confetti emojis for celebration
 const confettiEmojis = ['🌹', '❤️', '💕', '🌹', '❤️', '💕'];
@@ -36,17 +37,49 @@ function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 function setStatus(){ roundEl.textContent = round; scoreEl.textContent = score }
 
 function generateSequence(len){
-  // Always return a non-repeating sequence. Cap length to available unique digits.
-  const maxUnique = MAX_NUM + 1;
-  const targetLen = Math.min(len, maxUnique);
-  const pool = [];
-  for(let n = 0; n <= MAX_NUM; n++) pool.push(n);
-  // Fisher-Yates shuffle
-  for(let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  // Hybrid uniqueness: first digit 1..9 (non-zero), next digits unique until 10 unique digits total (0..9).
+  // For lengths >10, append additional digits from shuffled cycles (0..9) avoiding immediate repeats.
+  if(len < 1) return [];
+  const first = Math.floor(Math.random()*9)+1; // 1..9
+  const unique = [first];
+  // Fill unique set up to min(len,10)
+  while(unique.length < Math.min(len,10)){
+    const candidate = Math.floor(Math.random()*10); // 0..9
+    if(!unique.includes(candidate)) unique.push(candidate);
   }
-  return pool.slice(0, targetLen);
+  if(len <= 10) return unique;
+  const remaining = len - 10;
+  const tail = [];
+  let cycle = [];
+  function refillCycle(){
+    cycle = [];
+    for(let d=0; d<10; d++) cycle.push(d);
+    // Fisher-Yates shuffle
+    for(let i=cycle.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [cycle[i], cycle[j]] = [cycle[j], cycle[i]];
+    }
+  }
+  refillCycle();
+  while(tail.length < remaining){
+    if(cycle.length === 0) refillCycle();
+    const next = cycle.pop();
+    const prev = tail.length === 0 ? unique[unique.length-1] : tail[tail.length-1];
+    if(next === prev){
+      // try to swap with another if available
+      if(cycle.length === 0){
+        // force accept to avoid infinite loop
+        tail.push(next);
+      } else {
+        const alt = cycle.pop();
+        tail.push(alt);
+        cycle.push(next); // put back original
+      }
+    } else {
+      tail.push(next);
+    }
+  }
+  return unique.concat(tail);
 }
 
 // Option 1 pivot: first index i where seq[i] > seq[i-1], pivot = seq[i]
@@ -132,25 +165,12 @@ async function startRound(){
   startBtn.disabled = true;
   nextBtn.disabled = true;
   restartBtn.disabled = false;
-  // Hide intro, show answer image
   introImageArea.classList.add('hidden');
   answerImageArea.classList.remove('hidden');
   correctImageArea.classList.add('hidden');
   wrongImageArea.classList.add('hidden');
-  // If first start and level selected, set override
-  if(round === 0 && levelSelect){
-    const lv = levelSelect.value;
-    if(lv === 'easy') startRoundOverride = 1;
-    else if(lv === 'medium') startRoundOverride = 5;
-    else if(lv === 'hard') startRoundOverride = 10;
-  }
-  if(startRoundOverride && round === 0){
-    round = startRoundOverride;
-  } else {
-    round += 1;
-  }
+  round += 1;
   setStatus();
-  // Check if game has reached 20 rounds
   if(round > 20){
     feedbackEl.textContent = 'Game complete! 20 rounds finished.';
     showCorrectFeedback();
@@ -159,11 +179,7 @@ async function startRound(){
     restartBtn.disabled = false;
     return;
   }
-  // Generate sequence: 3 digits first round, then grow by 1 each round, capped at 10 unique digits (0..9)
-  // Level-based start still uses the same growth rule: first played round uses 3 if easy; else derived by round index
-  const seqLenRaw = (round === 1 ? 3 : round + 2);
-  const seqLen = Math.min(seqLenRaw, MAX_NUM + 1); // cap to avoid repeats
-  currentSequence = generateSequence(seqLen);
+  currentSequence = generateSequence(sequenceLength);
   enableAnswerArea(false);
   feedbackEl.textContent = 'Watch closely...';
   await showSequence(currentSequence);
@@ -246,7 +262,6 @@ function restartGame(){
   nextBtn.disabled = true;
   restartBtn.disabled = true;
   enableAnswerArea(false);
-  // Show intro, hide others
   introImageArea.classList.remove('hidden');
   answerImageArea.classList.add('hidden');
   correctImageArea.classList.add('hidden');
@@ -265,13 +280,14 @@ clearBtn.addEventListener('click', ()=>{ clearResponse(); });
 if(retryBtn) retryBtn.addEventListener('click', ()=>{ retryRound(); });
 if(levelSelect){
   levelSelect.addEventListener('change', ()=>{
-    // Changing level only affects the next Start; does not change current round mid-game
-    startRoundOverride = null;
-    if(round === 0){
-      const lv = levelSelect.value;
-      if(lv === 'easy') startRoundOverride = 1;
-      else if(lv === 'medium') startRoundOverride = 5;
-      else if(lv === 'hard') startRoundOverride = 10;
-    }
+    const lv = levelSelect.value;
+    if(lv === 'easy') sequenceLength = 10;
+    else if(lv === 'medium') sequenceLength = 15;
+    else if(lv === 'hard') sequenceLength = 20;
   });
+  // Initialize from current selection
+  const initLv = levelSelect.value;
+  if(initLv === 'easy') sequenceLength = 10;
+  else if(initLv === 'medium') sequenceLength = 15;
+  else if(initLv === 'hard') sequenceLength = 20;
 }

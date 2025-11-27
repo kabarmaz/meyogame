@@ -100,15 +100,14 @@ function playInstructions(){
       return;
     }
     const inst = instructions[i];
-    const text = `To ${inst.city} on Corridor ${inst.corridor}${inst.closed ? ' (closed)' : ''}`;
-    // Log with visual cue for closed corridors
-    logInstruction(text);
+    const displayText = `To ${inst.city} on Corridor ${inst.corridor}${inst.closed ? ' (closed)' : ''}`;
+    const speechText = `To ${inst.city} on Corridor ${inst.corridor}`; // omit closed indicator in voice
+    logInstruction(displayText);
     if(window.speechSynthesis){
-      const u = new SpeechSynthesisUtterance(text);
+      const u = new SpeechSynthesisUtterance(speechText);
       window.speechSynthesis.speak(u);
       u.onend = ()=>{ i++; setTimeout(speakNext, 350); };
     } else {
-      // fallback: just wait and continue
       i++; setTimeout(speakNext, 700);
     }
   }
