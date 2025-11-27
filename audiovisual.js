@@ -100,7 +100,7 @@ function playInstructions(){
       return;
     }
     const inst = instructions[i];
-    const displayText = `To ${inst.city} on Corridor ${inst.corridor}${inst.closed ? ' (closed)' : ''}`;
+    const displayText = `To ${inst.city} on Corridor ${inst.corridor}`; // do not write closed marker
     const speechText = `To ${inst.city} on Corridor ${inst.corridor}`; // omit closed indicator in voice
     logInstruction(displayText);
     if(window.speechSynthesis){
