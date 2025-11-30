@@ -27,7 +27,13 @@
       <main>
         <div class="controls" style="justify-content:space-between;align-items:center;">
           <a href="index.html" class="btn">Back</a>
-          <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <label style="color:var(--muted);font-size:13px;">Level:</label>
+            <select id="avLevelSelect" class="btn" style="padding:8px;border-radius:8px;">
+              <option value="easy">Easy (5)</option>
+              <option value="normal" selected>Normal (8)</option>
+              <option value="hard">Hard (10)</option>
+            </select>
             <label style="color:var(--muted);font-size:13px;">Speed:</label>
             <select id="speedSelect" class="btn" style="padding:8px;border-radius:8px;">
               <option value="slow">Slow</option>

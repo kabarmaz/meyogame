@@ -4,6 +4,7 @@
 const closedListEl = document.getElementById('closedList');
 const corridorGrid = document.getElementById('corridorGrid');
 const newSetBtn = document.getElementById('newSetBtn');
+const avLevelSelect = document.getElementById('avLevelSelect');
 const playAudioBtn = document.getElementById('playAudioBtn');
 const submitNowBtn = document.getElementById('submitNowBtn');
 const speedSelect = document.getElementById('speedSelect');
@@ -190,6 +191,7 @@ let responseCountdownInterval = null;
 let perInstructionMs = 2500; // default per-instruction time (normal)
 let baseMs = 2000; // default base time before/after instructions
 let responseFillInterval = null;
+let avInstructionCount = 8; // default Normal
 
 function setAvStatus(){
   if(avRoundEl) avRoundEl.textContent = avRound;
@@ -206,8 +208,8 @@ function prepareNewSet(){
   pickClosedCorridors();
   avRound += 1;
   setAvStatus();
-  // choose a count sized to round or random (2..6)
-  const count = Math.max(2, Math.min(6, Math.floor(Math.random()*6)+2));
+  // choose count based on selected difficulty
+  const count = avInstructionCount;
   buildInstructionsForSet(count);
   playAudioBtn.disabled = false;
   if(submitNowBtn) submitNowBtn.disabled = true;
@@ -339,6 +341,17 @@ if(speedSelect){
       perInstructionMs = 2500; baseMs = 2000;
     }
   });
+}
+// Level selection wiring
+if(avLevelSelect){
+  const applyLevel = () => {
+    const lv = avLevelSelect.value;
+    if(lv === 'easy') avInstructionCount = 5;
+    else if(lv === 'hard') avInstructionCount = 10;
+    else avInstructionCount = 8; // normal
+  };
+  avLevelSelect.addEventListener('change', applyLevel);
+  applyLevel();
 }
 // Initialize status
 setAvStatus();
